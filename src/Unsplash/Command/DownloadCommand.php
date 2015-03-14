@@ -12,6 +12,7 @@ namespace Unsplash\Command;
 
 use Goutte\Client;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -36,14 +37,16 @@ class DownloadCommand extends Command {
         $this->setName("download")
             ->setDescription("Download photos from Unsplash.com")
             ->setDefinition([
-                new InputArgument('path', InputArgument::REQUIRED, 'Path - where photos is saved.'),
+                new InputArgument('path', InputArgument::REQUIRED, 'Path - where photos is saved on your filesystem.'),
+
                 new InputOption('all', null, InputOption::VALUE_NONE, 'Download everything, overwrite existing photos. (Overrule pages option)'),
-                new InputOption('width', null, InputOption::VALUE_REQUIRED, 'Download photo width [800, 1080, full]', 800),
-                new InputOption('quality', null, InputOption::VALUE_REQUIRED, 'Photo quality', 75),
                 new InputOption('format', null, InputOption::VALUE_REQUIRED, 'Photo format [jpg, png]', 'jpg'),
-                new InputOption('pages', null, InputOption::VALUE_REQUIRED, 'How many pages to download', 1),
+                new InputOption('overwrite', null, InputOption::VALUE_NONE, 'Overwrite existing files.'),
                 new InputOption('page', null, InputOption::VALUE_REQUIRED, 'Page no.', 1),
-                new InputOption('overwrite', null, InputOption::VALUE_NONE, 'Overrwrite existing files.'),
+                new InputOption('pages', null, InputOption::VALUE_REQUIRED, 'How many pages to download', 1),
+                new InputOption('quality', null, InputOption::VALUE_REQUIRED, 'Photo quality', 75),
+                new InputOption('update-library', null, InputOption::VALUE_NONE, 'Quit script when first existing photo is found.'),
+                new InputOption('width', null, InputOption::VALUE_REQUIRED, 'Download photo width [800, 1080, full]', 800),
             ]);
     }
 
@@ -63,6 +66,9 @@ class DownloadCommand extends Command {
         $page = $input->getOption('page');
         $pages = $input->getOption('pages');
 
+        $output->writeln(PHP_EOL . '<comment>Downloading photos from Unsplash.com</comment>');
+        $progressBar = new ProgressBar($output);
+
         // Iterate until break.
         while (true) {
             $crawler = $client->request('GET', $this->url . '&page=' . $page);
@@ -70,41 +76,48 @@ class DownloadCommand extends Command {
 
                 $filter = $crawler->filter('.photo-grid .photo-container img');
                 if ($filter->count()) {
+                    try {
+                        $filter->each(function ($node) use ($input, $output, $progressBar) {
+                            $srcUrl = parse_url($node->attr('src'));
+                            $scheme = array_shift($srcUrl);
+                            array_pop($srcUrl);
 
-                    $filter->each(function ($node) use ($input, $output) {
-                        $srcUrl = parse_url($node->attr('src'));
-                        $scheme = array_shift($srcUrl);
-                        array_pop($srcUrl);
+                            $queryString = [
+                                'q' => $input->getOption('quality'),
+                                'fm' => $input->getOption('format'),
+                            ];
 
-                        $queryString = [
-                            'q' => $input->getOption('quality'),
-                            'fm' => $input->getOption('format'),
-                        ];
-                        if (is_int($input->getOption('width'))) {
-                            $queryString['w'] = $input->getOption('width');
-                        }
+                            if (is_int($input->getOption('width'))) {
+                                $queryString['w'] = $input->getOption('width');
+                            }
 
-                        $file = $scheme . '://' . implode($srcUrl) . '?' . http_build_query($queryString);
+                            $file = $scheme . '://' . $srcUrl['host'] . $srcUrl['path'] . '?' . http_build_query($queryString);
 
-                        $this->saveFile($file, $input, $output);
+                            if ($input->getOption('update-library') && file_exists($input->getArgument('path') . $srcUrl['path'] . '.' . $input->getOption('format'))) {
+                                $output->writeln(PHP_EOL . PHP_EOL . sprintf('<comment>Library updated (%d new photos added)</comment>', $progressBar->getProgress()));
+                                throw new \Exception('damn');
+                            }
 
-
-
-                    });
-
+                            $this->saveFile($file, $input, $output);
+                            $progressBar->advance();
+                        });
+                    } catch (\Exception $e) {
+                        return;
+                    }
 
                     if (!$input->getOption('all') && ($counter == $pages)) {
                         break;
                     }
+
                     ++$page;
                     ++$counter;
-
                 }
                 else {
                     break;
                 }
             }
         }
+        $progressBar->finish();
     }
 
     /**

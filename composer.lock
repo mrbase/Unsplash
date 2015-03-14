@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "dfdc8892c0df4d191e1b876a88cc6172",
+    "hash": "27891e54e0abfce9d16d43bd9809e804",
     "packages": [
         {
             "name": "fabpot/goutte",
@@ -315,26 +315,41 @@
         },
         {
             "name": "symfony/console",
-            "version": "v2.1.13",
+            "version": "v2.6.0",
             "target-dir": "Symfony/Component/Console",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Console.git",
-                "reference": "a5e96b2363aca8a5400fec3bbcb3201a4b0513fb"
+                "reference": "d3bac228fd7a2aac9193e241b239880b3ba39a10"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Console/zipball/a5e96b2363aca8a5400fec3bbcb3201a4b0513fb",
-                "reference": "a5e96b2363aca8a5400fec3bbcb3201a4b0513fb",
+                "url": "https://api.github.com/repos/symfony/Console/zipball/d3bac228fd7a2aac9193e241b239880b3ba39a10",
+                "reference": "d3bac228fd7a2aac9193e241b239880b3ba39a10",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
             },
+            "require-dev": {
+                "psr/log": "~1.0",
+                "symfony/event-dispatcher": "~2.1",
+                "symfony/process": "~2.1"
+            },
+            "suggest": {
+                "psr/log": "For using the console logger",
+                "symfony/event-dispatcher": "",
+                "symfony/process": ""
+            },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.6-dev"
+                }
+            },
             "autoload": {
                 "psr-0": {
-                    "Symfony\\Component\\Console": ""
+                    "Symfony\\Component\\Console\\": ""
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -343,19 +358,17 @@
             ],
             "authors": [
                 {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com",
-                    "homepage": "http://fabien.potencier.org",
-                    "role": "Lead Developer"
-                },
-                {
                     "name": "Symfony Community",
                     "homepage": "http://symfony.com/contributors"
+                },
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
                 }
             ],
             "description": "Symfony Console Component",
             "homepage": "http://symfony.com",
-            "time": "2013-06-11 07:34:22"
+            "time": "2014-11-20 13:24:23"
         },
         {
             "name": "symfony/css-selector",
