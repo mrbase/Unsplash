@@ -42,20 +42,20 @@ Options:
  --no-interaction (-n) Do not ask any interactive question.
  ```
  
- # Examples
+# Examples
  
- Download the newest ten photos to ~/Pictures/Unsplash
+Download the newest ten photos to ~/Pictures/Unsplash
  
     sf download ~/Pictures/Unsplash
     
- Download everything in a smaller size, 100% quality inthe png format.
+Download everything in a smaller size, 100% quality inthe png format.
  
     sf download --all --format=png  --quality=100 --width=800 ~/Pictures/Unsplash/
     
- Keep your local copy up to date with only the newest photos (can be run from cron)
+Keep your local copy up to date with only the newest photos (can be run from cron)
  
     sf download --format=png --quality=100 --width=800 --update-library ~/Pictures/Unsplash/
  
- Overwrite the photos locally, could be used if you want to scale up, change format or whatever.
+Overwrite the photos locally, could be used if you want to scale up, change format or whatever.
  
     sf download --format=jpg --quality-75 --width=800 --overwrite ~/Pictures/Unsplash/
